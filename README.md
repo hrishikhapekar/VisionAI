@@ -120,21 +120,27 @@ App available at: http://localhost:5173
 
 ## 🌐 Deployment
 
-### Backend → Render
+### Backend → Hugging Face Spaces
 
 1. Push `backend/` to a GitHub repo
-2. Create a new **Web Service** on [render.com](https://render.com)
-3. Set:
-   - Build command: `pip install -r requirements.txt`
-   - Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-4. Add environment variables:
+2. Create a new **Space** on [huggingface.co/spaces](https://huggingface.co/spaces)
+3. Set SDK to **Docker**
+4. Add a `Dockerfile` in `backend/`:
+   ```dockerfile
+   FROM python:3.10-slim
+   WORKDIR /app
+   COPY . .
+   RUN pip install -r requirements.txt
+   CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
+   ```
+5. Add Space secrets (Settings → Variables and secrets):
    ```
    UPLOAD_DIR=uploads
    MAX_FILE_SIZE_MB=10
    ```
-5. Use a **Standard** instance (needs ~2 GB RAM for models)
+6. Use a **CPU upgrade** or **GPU** Space (needs ~2 GB RAM for models)
 
-> ⚠️ Render's filesystem is ephemeral — uploaded images and in-memory history reset on every redeploy. This is expected behavior for this app.
+> ⚠️ Hugging Face Spaces filesystem is ephemeral — uploaded images and in-memory history reset on every redeploy. This is expected behavior for this app.
 
 ### Frontend → Vercel
 
@@ -142,7 +148,7 @@ App available at: http://localhost:5173
 2. Import project on [vercel.com](https://vercel.com)
 3. Set environment variable:
    ```
-   VITE_API_URL=https://your-render-url.onrender.com
+   VITE_API_URL=https://your-space.hf.space
    ```
 4. Deploy — `vercel.json` handles SPA routing automatically
 
@@ -162,7 +168,7 @@ allow_origins=[
 ## ⚡ Performance Tips
 
 - Models are loaded **once** at startup — subsequent requests are fast
-- Use a **GPU instance** on Render/Railway for 10-20× faster inference
+- Use a **GPU Space** on Hugging Face for 10-20× faster inference
 - Images are auto-resized to max 1024px before inference
 - Set `PYTORCH_NO_CUDA_MEMORY_CACHING=1` on CPU-only servers to reduce RAM
 
