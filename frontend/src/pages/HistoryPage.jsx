@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { getHistory, getImageUrl } from "../services/api";
-import Spinner from "../components/Spinner";
-import { Clock, ImageOff, Info } from "lucide-react";
+import { useState, useEffect } from "react";
+import { getImageUrl } from "../services/api";
+import { Clock, ImageOff, Trash2 } from "lucide-react";
+
+const HISTORY_KEY = "visionai_history";
 
 const ACTION_COLORS = {
   caption: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -11,31 +12,32 @@ const ACTION_COLORS = {
 
 export default function HistoryPage() {
   const [records, setRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getHistory()
-      .then(({ data }) => setRecords(data.records))
-      .catch(() => setRecords([]))
-      .finally(() => setLoading(false));
+    const saved = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || "[]");
+    setRecords(saved);
   }, []);
+
+  const clearHistory = () => {
+    sessionStorage.removeItem(HISTORY_KEY);
+    setRecords([]);
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
-      <div className="flex items-center gap-2">
-        <Clock size={22} className="text-violet-500" />
-        <h1 className="text-2xl font-bold">Analysis History</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Clock size={22} className="text-violet-500" />
+          <h1 className="text-2xl font-bold">Analysis History</h1>
+        </div>
+        {records.length > 0 && (
+          <button onClick={clearHistory} className="btn-secondary flex items-center gap-1 text-xs text-red-500">
+            <Trash2 size={13} /> Clear
+          </button>
+        )}
       </div>
 
-      {/* In-memory notice */}
-      <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
-        <Info size={16} className="mt-0.5 flex-shrink-0" />
-        History is stored in memory — it resets when the server restarts or the page is reloaded.
-      </div>
-
-      {loading && <Spinner label="Loading history…" />}
-
-      {!loading && records.length === 0 && (
+      {records.length === 0 && (
         <div className="card flex flex-col items-center gap-3 py-16 text-gray-400">
           <ImageOff size={40} />
           <p>No history yet. Analyze an image first!</p>

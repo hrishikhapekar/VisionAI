@@ -20,9 +20,6 @@ export const detectObjects = (file_id) =>
 export const askQuestion = (file_id, question) =>
   api.post("/ask", { file_id, question });
 
-export const getHistory = (limit = 20) =>
-  api.get("/history", { params: { limit } });
-
 export const getImageUrl = (file_id) =>
   `${api.defaults.baseURL}/uploads/${file_id}.jpg`;
 

@@ -1,13 +1,9 @@
-"""
-/ask  – Visual Question Answering endpoint.
-"""
 import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from PIL import Image
 
 from services.vqa_service import answer_question
-from utils.db import save_history
 
 router = APIRouter()
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
@@ -29,13 +25,4 @@ async def ask(req: VQARequest):
 
     image = Image.open(path)
     answer = answer_question(image, req.question)
-
-    await save_history(
-        {
-            "file_id": req.file_id,
-            "action": "vqa",
-            "result": {"question": req.question, "answer": answer},
-        }
-    )
-
     return {"file_id": req.file_id, "question": req.question, "answer": answer}

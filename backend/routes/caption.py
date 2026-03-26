@@ -1,13 +1,9 @@
-"""
-/caption  – generates captions for an uploaded image.
-"""
 import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from PIL import Image
 
 from services.caption_service import generate_captions
-from utils.db import save_history
 
 router = APIRouter()
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
@@ -25,13 +21,4 @@ async def caption_image(req: CaptionRequest):
 
     image = Image.open(path)
     captions = generate_captions(image)
-
-    await save_history(
-        {
-            "file_id": req.file_id,
-            "action": "caption",
-            "result": captions,
-        }
-    )
-
     return {"file_id": req.file_id, "captions": captions}

@@ -1,13 +1,9 @@
-"""
-/detect  – runs object detection on an uploaded image.
-"""
 import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from PIL import Image
 
 from services.detection_service import detect_objects
-from utils.db import save_history
 
 router = APIRouter()
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
@@ -25,17 +21,4 @@ async def detect(req: DetectRequest):
 
     image = Image.open(path)
     detections = detect_objects(image)
-
-    await save_history(
-        {
-            "file_id": req.file_id,
-            "action": "detect",
-            "result": detections,
-        }
-    )
-
-    return {
-        "file_id": req.file_id,
-        "count": len(detections),
-        "detections": detections,
-    }
+    return {"file_id": req.file_id, "count": len(detections), "detections": detections}

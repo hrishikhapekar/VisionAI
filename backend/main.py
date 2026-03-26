@@ -17,7 +17,6 @@ from routes.upload import router as upload_router
 from routes.caption import router as caption_router
 from routes.detect import router as detect_router
 from routes.ask import router as ask_router
-from routes.history import router as history_router
 
 
 @asynccontextmanager
@@ -40,8 +39,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://*.vercel.app",
-        "https://*.hf.space",       # Hugging Face Spaces frontend
+        "https://vision-ai-bay.vercel.app",
+        "https://*.hf.space",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -58,7 +57,6 @@ app.include_router(upload_router)
 app.include_router(caption_router)
 app.include_router(detect_router)
 app.include_router(ask_router)
-app.include_router(history_router)
 
 
 @app.get("/")

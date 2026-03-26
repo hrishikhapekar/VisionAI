@@ -25,6 +25,10 @@ export default function VQAPanel({ fileId }) {
     try {
       const { data } = await askQuestion(fileId, q);
       setMessages((m) => [...m, { role: "ai", text: data.answer }]);
+      // save to session history
+      const existing = JSON.parse(sessionStorage.getItem("visionai_history") || "[]");
+      existing.unshift({ file_id: fileId, action: "vqa", result: { question: q, answer: data.answer }, created_at: new Date().toISOString() });
+      sessionStorage.setItem("visionai_history", JSON.stringify(existing.slice(0, 50)));
     } catch {
       toast.error("Failed to get answer. Try again.");
       setMessages((m) => m.slice(0, -1));

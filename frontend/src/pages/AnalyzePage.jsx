@@ -9,6 +9,13 @@ import VQAPanel from "../components/VQAPanel";
 import { uploadImage, generateCaptions, detectObjects, getImageUrl } from "../services/api";
 
 const SESSION_KEY = "visionai_result";
+const HISTORY_KEY = "visionai_history";
+
+const saveToHistory = (record) => {
+  const existing = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || "[]");
+  existing.unshift({ ...record, created_at: new Date().toISOString() });
+  sessionStorage.setItem(HISTORY_KEY, JSON.stringify(existing.slice(0, 50)));
+};
 
 export default function AnalyzePage() {
   const [file, setFile] = useState(null);
@@ -70,6 +77,7 @@ export default function AnalyzePage() {
     try {
       const { data } = await generateCaptions(fileId);
       setCaptions(data.captions);
+      saveToHistory({ file_id: fileId, action: "caption", result: data.captions });
     } catch {
       toast.error("Caption generation failed.");
     } finally {
@@ -82,6 +90,7 @@ export default function AnalyzePage() {
     try {
       const { data } = await detectObjects(fileId);
       setDetections(data.detections);
+      saveToHistory({ file_id: fileId, action: "detect", result: data.detections });
     } catch {
       toast.error("Object detection failed.");
     } finally {
