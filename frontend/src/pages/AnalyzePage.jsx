@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Sparkles, ScanSearch, MessageSquare, FlaskConical } from "lucide-react";
+import { Sparkles, ScanSearch, MessageSquare, FlaskConical, ImagePlus } from "lucide-react";
 import DropZone from "../components/DropZone";
 import Spinner from "../components/Spinner";
 import CaptionPanel from "../components/CaptionPanel";
@@ -205,6 +205,7 @@ export default function AnalyzePage() {
           </div>
           <button
             onClick={() => {
+              setFile(null);
               setFileId(null);
               setPreviewUrl(null);
               setCaptions(null);
@@ -254,6 +255,26 @@ export default function AnalyzePage() {
       {detections && <DetectionPanel detections={detections} fileId={fileId} />}
 
       {fileId && <VQAPanel fileId={fileId} />}
+
+      {fileId && (captions || detections) && (
+        <div className="flex justify-center pb-4 animate-fade-in">
+          <button
+            onClick={() => {
+              setFile(null);
+              setFileId(null);
+              setPreviewUrl(null);
+              setCaptions(null);
+              setDetections(null);
+              sessionStorage.removeItem(SESSION_KEY);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="btn-secondary flex items-center gap-2 px-6 py-3 text-sm"
+          >
+            <ImagePlus size={16} />
+            Analyze Another Image
+          </button>
+        </div>
+      )}
     </div>
   );
 }
